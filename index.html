@@ -1,48 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Quiz Climb</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to right, #141e30, #243b55);
-      color: white;
-      text-align: center;
-    }
-    .container {
-      margin-top: 100px;
-    }
-    h1 {
-      font-size: 40px;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 20px;
-      border: none;
-      border-radius: 10px;
-      background-color: #00c6ff;
-      color: black;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0072ff;
-      color: white;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <title>Quiz & Climb</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>QUIZ CLIMB</h1>
-    <p>Ready to start your journey?</p>
-    <button onclick="startGame()">Start Game</button>
-  </div>
 
-  <script>
-    function startGame() {
-      alert("Game Starting Soon!");
-    }
-  </script>
+<h1>QUIZ & CLIMB 🎲</h1>
+
+<button onclick="startGame()">Start Game</button>
+
+<div id="diceBox">
+  🎲 <span id="diceNumber">-</span>
+</div>
+
+<div id="board"></div>
+
+<div id="players"></div>
+
+<script src="script.js"></script>
 </body>
 </html>
