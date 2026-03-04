@@ -1,0 +1,46 @@
+body{
+  text-align:center;
+  font-family:Arial;
+  background:#111;
+  color:white;
+}
+
+#board{
+  display:grid;
+  grid-template-columns:repeat(10,40px);
+  margin:20px auto;
+  width:max-content;
+}
+
+.cell{
+  width:40px;
+  height:40px;
+  background:#eee;
+  color:black;
+  font-size:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  border:1px solid #999;
+}
+
+#diceBox{
+  font-size:30px;
+  margin:15px;
+}
+
+button{
+  padding:10px 20px;
+  font-size:16px;
+  margin:5px;
+  cursor:pointer;
+}
+
+.token{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  position:absolute;
+  bottom:2px;
+}
