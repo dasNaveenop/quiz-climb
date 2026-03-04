@@ -44,7 +44,7 @@ button{
   position:absolute;
   bottom:2px;
 }
-.board.png {
+.board {
     width: 600px;
     height: 600px;
     display: grid;
