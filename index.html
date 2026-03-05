@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🧗 QUIZ CLIMBER · Snake & Ladder · Simple Edition</title>
+    <title>🐍 SNAKE & LADDER · multi‑team projector play</title>
     <style>
         * {
             box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             margin: 0;
             padding: 0;
         }
         body {
-            background: #1e3a5f;
+            background: #1a3e2f;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,61 +22,71 @@
         .game-container {
             max-width: 1300px;
             width: 100%;
-            background: #2c5a7a;
-            border-radius: 48px;
+            background: #2b5a44;
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.6);
             padding: 24px;
-            border: 5px solid #ffb347;
+            border: 4px solid #c9a459;
         }
-        /* turn panel */
+        /* header / turn indicator */
         .turn-panel {
             background: #fcf3da;
             border-radius: 60px;
-            padding: 20px 30px;
+            padding: 16px 30px;
             margin-bottom: 24px;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
             border: 3px solid #aa7c3f;
+            box-shadow: inset 0 2px 8px #ffeeaa;
         }
         .turn-indicator {
             display: flex;
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
-            font-size: 1.8rem;
         }
         .team-tag {
-            padding: 12px 30px;
+            padding: 8px 20px;
             border-radius: 50px;
             font-weight: 800;
-            font-size: 2rem;
+            font-size: 1.5rem;
             background: white;
-            border: 3px solid black;
+            box-shadow: 0 4px 0 #7b5a2e;
+            border: 2px solid black;
+        }
+        .dice-area {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
         .dice-box {
             background: white;
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 5rem;
+            font-size: 4rem;
             font-weight: 800;
-            border: 5px solid #3e2b12;
+            border: 4px solid #3e2b12;
             box-shadow: 0 8px 0 #5a3f1a;
+            transition: 0.1s transform;
         }
         .roll-btn {
             background: #f5b342;
             border: none;
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: bold;
-            padding: 16px 40px;
+            padding: 16px 32px;
             border-radius: 60px;
             cursor: pointer;
             border: 4px solid #c57c1a;
             box-shadow: 0 6px 0 #7b4f12;
+            transition: 0.05s linear;
+            color: #1e2b16;
         }
         .roll-btn:active {
             transform: translateY(6px);
@@ -84,9 +94,25 @@
         }
         .roll-btn:disabled {
             opacity: 0.4;
+            transform: none;
             pointer-events: none;
         }
-        /* main board */
+        .reset-save {
+            display: flex;
+            gap: 12px;
+        }
+        .smol-btn {
+            background: #ccc2a7;
+            border: 3px solid #5a4c34;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 0 #6b5a3a;
+        }
+        .smol-btn:active { transform: translateY(4px); box-shadow: none; }
+        /* main board + sidebar */
         .play-area {
             display: flex;
             gap: 24px;
@@ -108,90 +134,86 @@
             border: 4px solid #6b4c2c;
             border-radius: 24px;
             overflow: hidden;
+            box-shadow: inset 0 0 0 2px #ecbf7a;
+            position: relative;
         }
         .cell {
             border: 1px solid #9b7b56;
+            background-size: cover;
+            background-position: center;
             position: relative;
-            font-size: 1rem;
+            font-size: 0.9rem;
             font-weight: 600;
+            color: #222;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-blend-mode: overlay;
         }
         .cell-number {
             position: absolute;
             top: 2px;
             left: 4px;
-            font-size: 0.9rem;
-            background: rgba(255,255,200,0.8);
+            font-size: 0.8rem;
+            background: rgba(255,255,200,0.7);
             padding: 0 4px;
             border-radius: 10px;
+            z-index: 1;
         }
-        /* snake head/tail */
-        .cell[data-snake="true"] { background: #c94f4f; color: white; }
-        .cell[data-ladder="true"] { background: #6b8e4c; color: white; }
+        /* snake/ladder images as background (symbolic) */
+        .cell[data-snake="true"] { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d=%22M20 80 Q40 20 80 30%22 stroke=%22255a33%22 stroke-width=%2212%22 fill=%22none%22 /><circle cx=%2282%22 cy=%2230%22 r=%2212%22 fill=%22darkgreen%22 /></svg>'); background-size: cover; background-color: #c9b28b;}
+        .cell[data-ladder="true"] { background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2230%22 y=%2210%22 width=%2210%22 height=%2280%22 fill=%22%23b57c48%22 /><rect x=%2260%22 y=%2210%22 width=%2210%22 height=%2280%22 fill=%22%23945f30%22 /><rect x=%2225%22 y=%2220%22 width=%2250%22 height=%2210%22 fill=%22%23d9b382%22 /><rect x=%2225%22 y=%2240%22 width=%2250%22 height=%2210%22 fill=%22%23d9b382%22 /><rect x=%2225%22 y=%2260%22 width=%2250%22 height=%2210%22 fill=%22%23d9b382%22 /></svg>'); background-size: contain; background-repeat: no-repeat; background-color: #dbbc87;}
+        .power-bonus { background-color: #b3d9a0 !important; } .power-back { background-color: #f4aaaa !important; }
+        .power-skip { background-color: #b0c2f0 !important; } .power-swap { background-color: #f3dba6 !important; }
         .token {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 3px solid white;
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            box-shadow: 0 2px 4px black;
+            width: 24px; height: 24px; border-radius: 50%; border: 3px solid white;
+            position: absolute; bottom: 2px; right: 2px; box-shadow: 0 2px 4px black;
             z-index: 20;
         }
-        /* scoreboard + team select */
         .scoreboard {
             flex: 1;
-            min-width: 280px;
+            min-width: 260px;
             background: #ecdba9;
             border-radius: 40px;
             padding: 24px 18px;
             border: 5px solid #ad7a4b;
+            box-shadow: inset 0 0 0 3px #fef7d6;
+            display: flex;
+            flex-direction: column;
         }
         .scoreboard h2 {
             text-align: center;
             background: #3f6123;
             color: white;
-            padding: 15px;
+            padding: 12px;
             border-radius: 40px;
-            font-size: 2.2rem;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            border: 3px solid #ffdb8e;
         }
         .team-list {
             list-style: none;
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            margin: 20px 0;
+            flex-grow: 1;
         }
         .team-list li {
             display: flex;
             justify-content: space-between;
             background: #fcf5dd;
-            margin: 10px 0;
-            padding: 15px 20px;
+            margin: 8px 0;
+            padding: 12px 16px;
             border-radius: 40px;
             border: 2px solid #7a623a;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .team-list li.selected {
-            border: 5px solid #ffaa00;
-            background: #fff2cc;
-            transform: scale(1.02);
         }
         .team-color-dot {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: 2px solid black;
-            display: inline-block;
-            margin-right: 15px;
+            width: 30px; height: 30px; border-radius: 50%; border: 2px solid black;
+            display: inline-block; margin-right: 12px;
         }
         .winner-overlay {
             background: #ffec9f;
             border-radius: 80px;
-            padding: 30px;
+            padding: 32px;
             text-align: center;
             font-size: 3rem;
             font-weight: 800;
@@ -201,90 +223,114 @@
         .hidden { display: none !important; }
         .setup-screen {
             background: #a2b38b;
-            padding: 50px;
+            padding: 40px;
             border-radius: 80px;
         }
         .team-row {
             display: flex;
-            gap: 15px;
-            margin: 15px 0;
+            gap: 12px;
+            margin: 12px 0;
             align-items: center;
             flex-wrap: wrap;
         }
-        input { padding: 10px; font-size: 1.4rem; border-radius: 30px; }
+        input, select { padding: 8px; font-size: 1.2rem; border-radius: 30px; border: 2px solid; }
     </style>
 </head>
 <body>
 <div id="gameContainer" class="game-container">
-    <!-- Setup Panel -->
+    <!-- setup panel (visible initially) -->
     <div id="setupPanel" class="setup-screen">
-        <h2 style="font-size: 3.5rem; color: #1e3200;">🧗 QUIZ CLIMBER</h2>
-        <p style="font-size: 2rem;">Teams (2–6) set cheyyu</p>
-        <div id="teamInputs"></div>
-        <button id="startGameBtn" class="roll-btn" style="font-size:2.2rem;">🚀 GAME START</button>
+        <h2 style="font-size: 3rem; color:#1e3200;">🐍 SNAKE & LADDER setup</h2>
+        <p style="font-size:1.4rem;">Teams (2–6)</p>
+        <div id="teamInputs">
+            <!-- dynamic team rows generated by js -->
+        </div>
+        <button id="startGameBtn" class="roll-btn" style="font-size:2rem;">START BOARD</button>
     </div>
 
-    <!-- Main Game -->
+    <!-- main game ui (hidden until setup) -->
     <div id="mainGame" class="hidden">
         <div class="turn-panel">
             <div class="turn-indicator">
-                <span>🎲 Current:</span>
-                <span id="turnTeamTag" class="team-tag">Team 1</span>
+                <span style="font-size:2rem;">🎲 turn:</span>
+                <div id="turnTeamTag" class="team-tag" style="background:#cfb284;">Team 1</div>
             </div>
             <div class="dice-area">
                 <div class="dice-box" id="diceValue">⚀</div>
-                <button class="roll-btn" id="rollDiceBtn" disabled>ROLL</button>
+                <button class="roll-btn" id="rollDiceBtn">ROLL</button>
+            </div>
+            <div class="reset-save">
+                <button class="smol-btn" id="resetGameBtn">🔄 RESET</button>
+                <button class="smol-btn" id="clearSaveBtn">💾↺ new game</button>
             </div>
         </div>
-        
         <div class="play-area">
             <div class="board-wrapper">
                 <div id="gameBoard" class="grid-board"></div>
             </div>
-            
             <div class="scoreboard">
                 <h2>📊 SCORE</h2>
                 <ul id="scoreList" class="team-list"></ul>
-                <div style="font-size: 1.8rem; margin-top: 20px; padding: 15px; background: #ffd966; border-radius: 40px; text-align: center;">
-                    👆 Quiz answer correct aaya<br>team select cheyyu
-                </div>
                 <div id="winnerMessage" class="winner-overlay hidden"></div>
-                <button id="resetGameBtn" class="roll-btn" style="margin-top: 20px; width: 100%; font-size:1.8rem;">🔄 RESET GAME</button>
             </div>
         </div>
     </div>
 </div>
-
 <script>
     (function() {
-        // Simple Snake & Ladder - no power tiles, no skip
-        let teams = [];
+        // ------ Game state ------
+        let teams = [];                 // { id, name, color, position, skipNext, canRollAgain }
         let currentTeamIndex = 0;
         let gameActive = false;
         let winnerId = null;
-        
-        // Classic snakes & ladders
-        const SNAKES = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 98: 78 };
-        const LADDERS = { 2: 38, 7: 14, 8: 31, 15: 26, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 78: 98, 87: 94 };
+        let extraTurn = false;          // after rolling a 6, same team plays
 
-        // Apply snakes/ladders
-        function applySnakesLadders(pos) {
-            if (SNAKES[pos]) return SNAKES[pos];
-            if (LADDERS[pos]) return LADDERS[pos];
-            return pos;
+        // fixed board: snakes, ladders, power tiles
+        const SNAKES = { 16: 6, 47: 26, 49: 11, 56: 53, 62: 19, 64: 60, 87: 24, 93: 73, 95: 75, 98: 78 };
+        const LADDERS = { 2: 38, 7: 14, 8: 31, 15: 26, 21: 42, 28: 84, 36: 44, 51: 67, 71: 91, 78: 98, 87: 94 }; // note: snake also at 87, but ladder wins if defined (we apply both)
+        const POWER_TILES = {
+            5: 'bonus', 12: 'back', 22: 'skip', 29: 'swap', 34: 'bonus', 41: 'back', 55: 'skip', 66: 'swap', 73: 'bonus', 82: 'back', 90: 'skip', 97: 'swap'
+        };
+
+        // ------ helper functions ------
+        function getPowerType(pos) { return POWER_TILES[pos] || null; }
+
+        // apply special power (modifies team)
+        function applyPower(team, pos, allTeams) {
+            const power = getPowerType(pos);
+            if (!power) return false;
+            switch(power) {
+                case 'bonus': team.position = Math.min(100, team.position + 3); break;
+                case 'back': team.position = Math.max(1, team.position - 5); break;
+                case 'skip': team.skipNext = true; break;
+                case 'swap':
+                    const otherTeams = allTeams.filter(t => t.id !== team.id && t.position < 100 && t.position > 0);
+                    if (otherTeams.length) {
+                        const randomOther = otherTeams[Math.floor(Math.random() * otherTeams.length)];
+                        [team.position, randomOther.position] = [randomOther.position, team.position];
+                    }
+                    break;
+            } return true;
         }
 
-        // Render board
+        // check snake/ladder after move
+        function applySnakesLadders(pos) {
+            let newPos = pos;
+            if (SNAKES[pos]) newPos = SNAKES[pos];
+            if (LADDERS[pos]) newPos = LADDERS[pos]; // ladder overwrites (if both, ladder wins)
+            return newPos;
+        }
+
+        // ------ render board and tokens ------
         function renderBoard() {
             const boardEl = document.getElementById('gameBoard');
             boardEl.innerHTML = '';
-            for (let i = 100; i >= 1; i -= 10) {
+            for (let i = 100; i >= 1; i-=10) {
                 for (let j = 0; j < 10; j++) {
                     const cellNum = i - j;
                     const cell = document.createElement('div');
                     cell.className = 'cell';
                     cell.dataset.num = cellNum;
-                    
                     const numberSpan = document.createElement('span');
                     numberSpan.className = 'cell-number';
                     numberSpan.innerText = cellNum;
@@ -292,13 +338,20 @@
                     
                     if (SNAKES[cellNum]) cell.dataset.snake = 'true';
                     if (LADDERS[cellNum]) cell.dataset.ladder = 'true';
+                    
+                    const power = getPowerType(cellNum);
+                    if (power === 'bonus') cell.classList.add('power-bonus');
+                    else if (power === 'back') cell.classList.add('power-back');
+                    else if (power === 'skip') cell.classList.add('power-skip');
+                    else if (power === 'swap') cell.classList.add('power-swap');
 
-                    // Add team tokens
+                    // add tokens for teams on this cell
                     teams.forEach(team => {
                         if (team.position === cellNum) {
                             const token = document.createElement('div');
                             token.className = 'token';
                             token.style.backgroundColor = team.color;
+                            token.style.borderColor = 'white';
                             token.title = team.name;
                             cell.appendChild(token);
                         }
@@ -308,137 +361,217 @@
             }
         }
 
-        // Update scoreboard and highlight selected team
-        function updateScoreboard(selectedIndex = currentTeamIndex) {
+        function updateScoreboard() {
             const list = document.getElementById('scoreList');
             list.innerHTML = '';
-            teams.forEach((t, idx) => {
+            teams.slice().sort((a,b)=> b.position - a.position).forEach(t => {
                 const li = document.createElement('li');
-                li.className = idx === selectedIndex ? 'selected' : '';
-                li.dataset.teamIndex = idx;
                 li.innerHTML = `<span><span class="team-color-dot" style="background:${t.color};"></span>${t.name}</span> <span>📍 ${t.position}</span>`;
-                li.addEventListener('click', () => {
-                    // Quiz answer correct team select cheyyum
-                    if (!gameActive || winnerId) return;
-                    currentTeamIndex = idx;
-                    document.getElementById('rollDiceBtn').disabled = false;
-                    updateScoreboard(currentTeamIndex);
-                    document.getElementById('turnTeamTag').innerText = `${teams[currentTeamIndex].name} roll cheyyu`;
-                    document.getElementById('turnTeamTag').style.background = teams[currentTeamIndex].color + 'c0';
-                });
                 list.appendChild(li);
             });
-            
             const turnTag = document.getElementById('turnTeamTag');
-            if (teams[currentTeamIndex] && !winnerId) {
-                turnTag.innerText = `${teams[currentTeamIndex].name} (click dice)`;
+            if (winnerId === null && gameActive && teams[currentTeamIndex]) {
+                turnTag.innerText = `${teams[currentTeamIndex].name}'s turn`;
                 turnTag.style.background = teams[currentTeamIndex].color + 'c0';
             }
         }
 
-        // Dice roll
-        function rollDice() {
-            return Math.floor(Math.random() * 6) + 1;
+        // dice animation + roll
+        function rollDice() { return Math.floor(Math.random() * 6) + 1; }
+
+        function playDiceSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+                osc.connect(gain).connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            } catch (e) { /* fallback silent */ }
         }
 
-        // Move team
-        function moveCurrentTeam() {
-            if (!gameActive || winnerId) return;
-            
+        // move logic for current team
+        function handleMove(roll) {
+            if (!gameActive || winnerId !== null) return;
             const team = teams[currentTeamIndex];
-            const dice = rollDice();
-            
-            // Dice display
-            const diceMap = {1:'⚀',2:'⚁',3:'⚂',4:'⚃',5:'⚄',6:'⚅'};
-            document.getElementById('diceValue').innerText = diceMap[dice];
-            
-            // Move
-            let newPos = team.position + dice;
-            if (newPos <= 100) {
-                team.position = newPos;
-                team.position = applySnakesLadders(team.position);
+            if (!team) return;
+            // skip turn if skipNext
+            if (team.skipNext) {
+                team.skipNext = false;
+                nextTurn();
+                return;
             }
-            
-            // Check win
+
+            let newPos = team.position + roll;
+            if (newPos > 100) {
+                // cannot move beyond, stay
+            } else {
+                team.position = newPos;
+                // snake / ladder after move
+                team.position = applySnakesLadders(team.position);
+                // apply power tile (may change position, skip etc)
+                applyPower(team, team.position, teams);
+                // ensure within 1-100
+                if (team.position > 100) team.position = 100;
+                if (team.position < 1) team.position = 1;
+            }
+
+            // win check
             if (team.position === 100) {
                 winnerId = team.id;
                 gameActive = false;
-                document.getElementById('winnerMessage').innerHTML = `🏆 ${team.name} JIT GAYA! 🏆<br><button class="smol-btn" id="playAgainBtn" style="font-size:2rem; padding:15px;">NEW GAME</button>`;
+                document.getElementById('winnerMessage').innerHTML = `🏆 ${team.name} WINS! 🏆<br><button class="smol-btn" id="playAgainFromWin">PLAY AGAIN</button>`;
                 document.getElementById('winnerMessage').classList.remove('hidden');
                 document.getElementById('rollDiceBtn').disabled = true;
             }
-            
-            renderBoard();
-            updateScoreboard(currentTeamIndex);
-            
-            // Roll button disable until next team select
-            document.getElementById('rollDiceBtn').disabled = true;
-        }
 
-        // Setup functions
-        function setupTeamInputs() {
-            let html = '<select id="teamCountSelect" style="font-size:1.8rem; padding:10px;"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>';
-            for (let i=1; i<=6; i++) {
-                html += `<div class="team-row" id="teamRow${i}" style="display:none;">
-                    <span style="font-size:1.8rem;">Team ${i}:</span> 
-                    <input type="text" id="teamName${i}" placeholder="Name" value="Team ${i}" style="font-size:1.4rem;"> 
-                    <input type="color" id="teamColor${i}" value="#${Math.floor(Math.random()*16777215).toString(16).padStart(6,'0')}" style="width:60px;height:60px;">
-                </div>`;
+            // extra turn on 6 (if no win)
+            if (roll === 6 && winnerId === null) {
+                extraTurn = true; // same player again
+            } else {
+                extraTurn = false;
             }
-            document.getElementById('teamInputs').innerHTML = html;
-            
-            const sel = document.getElementById('teamCountSelect');
-            sel.addEventListener('change', () => {
-                for(let i=1;i<=6;i++) {
-                    document.getElementById(`teamRow${i}`).style.display = i <= parseInt(sel.value) ? 'flex' : 'none';
-                }
-            });
-            sel.dispatchEvent(new Event('change'));
-        }
-        setupTeamInputs();
 
-        // Start game
-        document.getElementById('startGameBtn').addEventListener('click', () => {
+            renderBoard();
+            updateScoreboard();
+            saveGame();
+
+            if (!extraTurn && winnerId === null) nextTurn();
+        }
+
+        function nextTurn() {
+            if (winnerId !== null) return;
+            if (extraTurn) return; // same player
+            let next = (currentTeamIndex + 1) % teams.length;
+            // skip over if that team already won? (shouldn't happen)
+            while (teams[next].position === 100) {
+                next = (next + 1) % teams.length;
+                if (next === currentTeamIndex) break; // all at 100? impossible but..
+            }
+            currentTeamIndex = next;
+            updateScoreboard();
+            renderBoard();
+            saveGame();
+        }
+
+        // ------ storage ------
+        function saveGame() {
+            if (!gameActive) return;
+            const state = { teams, currentTeamIndex, winnerId, extraTurn };
+            localStorage.setItem('snl_game', JSON.stringify(state));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('snl_game');
+            if (!saved) return false;
+            try {
+                const state = JSON.parse(saved);
+                if (state.teams && state.teams.length) {
+                    teams = state.teams;
+                    currentTeamIndex = state.currentTeamIndex;
+                    winnerId = state.winnerId || null;
+                    extraTurn = state.extraTurn || false;
+                    gameActive = true;
+                    if (winnerId) {
+                        document.getElementById('rollDiceBtn').disabled = true;
+                        const winTeam = teams.find(t=>t.id===winnerId);
+                        if(winTeam) {
+                            document.getElementById('winnerMessage').innerHTML = `🏆 ${winTeam.name} WINS! 🏆<br><button class="smol-btn" id="playAgainFromWin">PLAY AGAIN</button>`;
+                            document.getElementById('winnerMessage').classList.remove('hidden');
+                        }
+                    } else {
+                        document.getElementById('rollDiceBtn').disabled = false;
+                        document.getElementById('winnerMessage').classList.add('hidden');
+                    }
+                    renderBoard();
+                    updateScoreboard();
+                    return true;
+                }
+            } catch (e) {}
+            return false;
+        }
+
+        // reset to setup
+        function fullReset() {
+            localStorage.removeItem('snl_game');
+            document.getElementById('mainGame').classList.add('hidden');
+            document.getElementById('setupPanel').classList.remove('hidden');
+            gameActive = false;
+        }
+
+        // ------ event listeners ------
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'playAgainFromWin') fullReset();
+        });
+
+        // setup team inputs (2-6)
+        const teamInputsDiv = document.getElementById('teamInputs');
+        function refreshTeamInputs(count = 2) {
+            let html = '<select id="teamCountSelect"><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select>';
+            for (let i=1; i<=6; i++) {
+                html += `<div class="team-row" id="teamRow${i}" style="display:none;"><span>Team ${i}:</span> <input type="text" id="teamName${i}" placeholder="Name" value="Team ${i}"> <input type="color" id="teamColor${i}" value="#${Math.floor(Math.random()*16777215).toString(16).padStart(6,'0')}"></div>`;
+            }
+            teamInputsDiv.innerHTML = html;
+            const sel = document.getElementById('teamCountSelect');
+            sel.value = count;
+            sel.addEventListener('change', ()=> showRows(parseInt(sel.value)));
+            function showRows(cnt) {
+                for(let i=1;i<=6;i++) document.getElementById(`teamRow${i}`).style.display = i<=cnt ? 'flex' : 'none';
+            }
+            showRows(count);
+        }
+        refreshTeamInputs(2);
+
+        document.getElementById('startGameBtn').addEventListener('click', ()=>{
             const cnt = parseInt(document.getElementById('teamCountSelect').value);
             teams = [];
             for (let i=1; i<=cnt; i++) {
                 const name = document.getElementById(`teamName${i}`).value.trim() || `Team ${i}`;
                 const color = document.getElementById(`teamColor${i}`).value;
-                teams.push({ id: i, name, color, position: 0 });
+                teams.push({ id: i, name, color, position: 0, skipNext: false });
             }
             currentTeamIndex = 0;
             winnerId = null;
+            extraTurn = false;
             gameActive = true;
-            
             document.getElementById('winnerMessage').classList.add('hidden');
-            document.getElementById('rollDiceBtn').disabled = true; // team select cheyyande?
+            document.getElementById('rollDiceBtn').disabled = false;
             renderBoard();
-            updateScoreboard(0);
-            
+            updateScoreboard();
             document.getElementById('mainGame').classList.remove('hidden');
             document.getElementById('setupPanel').classList.add('hidden');
+            saveGame();
         });
 
-        // Roll button
-        document.getElementById('rollDiceBtn').addEventListener('click', moveCurrentTeam);
+        document.getElementById('rollDiceBtn').addEventListener('click', ()=>{
+            if (!gameActive || winnerId) return;
+            playDiceSound();
+            const dice = rollDice();
+            const diceMap = {1:'⚀',2:'⚁',3:'⚂',4:'⚃',5:'⚄',6:'⚅'};
+            document.getElementById('diceValue').innerText = diceMap[dice];
+            setTimeout(()=>{ document.getElementById('diceValue').innerText = diceMap[dice]; }, 60); // animation
+            handleMove(dice);
+        });
 
-        // Reset
-        document.getElementById('resetGameBtn').addEventListener('click', () => {
-            if (confirm('Game reset cheyyano?')) {
-                document.getElementById('mainGame').classList.add('hidden');
-                document.getElementById('setupPanel').classList.remove('hidden');
-                gameActive = false;
+        document.getElementById('resetGameBtn').addEventListener('click', fullReset);
+        document.getElementById('clearSaveBtn').addEventListener('click', ()=>{
+            localStorage.removeItem('snl_game');
+            fullReset();
+        });
+
+        // try load on page start
+        window.onload = ()=>{
+            if (loadGame()) {
+                document.getElementById('mainGame').classList.remove('hidden');
+                document.getElementById('setupPanel').classList.add('hidden');
+            } else {
+                // stay setup
             }
-        });
-
-        // Play again from winner
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'playAgainBtn') {
-                document.getElementById('mainGame').classList.add('hidden');
-                document.getElementById('setupPanel').classList.remove('hidden');
-                gameActive = false;
-            }
-        });
+        };
     })();
 </script>
 </body>
